@@ -1,4 +1,5 @@
 const { EmbedBuilder, REST, Routes, Application } = require('discord.js');
+const {token} = require("./config.json")
 
 const commands = [
   //{
@@ -56,7 +57,7 @@ const commands = [
 ];
 
 
-const rest = new REST({ version: '10' }).setToken("MTA3MzI1NzU3ODA0NzQ5MjIxOA.GIG6zx.OETSZWkgrTNLbpLHf0msGTXc0VT_UOq0Nfh7Q4");
+const rest = new REST({ version: '10' }).setToken(token);
 
 (async () => {
   try {
@@ -86,7 +87,7 @@ client.on('ready', () => {
 
 //const { Configuration, OpenAIApi } = require("openai");
 //const configuration = new Configuration({
-//    apiKey: "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",
+//    apiKey: "",
 //  });
 //  const openai = new OpenAIApi(configuration);
 
@@ -285,5 +286,5 @@ client.on('interactionCreate', async interaction => {
   console.log(`${interaction.commandName} slash komutu başarıyla kullanıldı!`);
 });
 
-client.login("MTA3MzI1NzU3ODA0NzQ5MjIxOA.GIG6zx.OETSZWkgrTNLbpLHf0msGTXc0VT_UOq0Nfh7Q4");
+client.login(token);
 
