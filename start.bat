@@ -1,0 +1,6 @@
+@echo off
+:start
+echo Bot starting...
+node index.js
+echo Bot preparing to restart...
+goto start
