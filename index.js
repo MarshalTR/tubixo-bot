@@ -57,7 +57,7 @@ const commands = [
 ];
 
 
-const rest = new REST({ version: '10' }).setToken(token);
+const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 (async () => {
   try {
@@ -286,5 +286,5 @@ client.on('interactionCreate', async interaction => {
   console.log(`${interaction.commandName} slash komutu başarıyla kullanıldı!`);
 });
 
-client.login(token);
+client.login(process.env.TOKEN);
 
