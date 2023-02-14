@@ -1,5 +1,11 @@
-const { EmbedBuilder, REST, Routes, Application } = require('discord.js');
-const {token} = require("./config.json");
+
+const { EmbedBuilder, REST, Routes, Application, ActionRowBuilder, ButtonBuilder, ButtonStyle, Events } = require('discord.js');
+const fetch = require('axios');
+const ytdl = require('ytdl-core');
+const opus = require('opusscript');
+const { joinVoiceChannel } = require('@discordjs/voice');
+const dotenv=require('dotenv');
+dotenv.config();
 
 const commands = [
   //{
@@ -26,6 +32,18 @@ const commands = [
   },
   {
     name: 'avatar',
+    description: 'Profil fotoğrafını büyük ve net bir şekilde gör!',
+    options: [
+      {
+        name: 'kullanıcı',
+        description: 'Profil fotoğrafını büyütmek istediğin kullanıcıyı seç (opsiyonel)',
+        type: 6,
+        required: false
+      }
+    ]
+  },
+  {
+    name: 'avatar-sw',
     description: 'Profil fotoğrafını büyük ve net bir şekilde gör!',
     options: [
       {
@@ -144,15 +162,39 @@ client.on('ready', () => {
 //  console.error(error);
 //}
 client.on("messageCreate", function(message){
-  if(message==="ahsen")
-  {
-    message.reply("Kirpiğin ok kaşlarin yay geçme mescit yakınlarından\nÇok namazlar böldürürsün\nHayırlı cumalar :rose:");
-  }
+  
+  
+});
+const row = new ActionRowBuilder()
+			.addComponents(
+				new ButtonBuilder()
+					.setCustomId('primary')
+					.setLabel('Click me!')
+					.setStyle(ButtonStyle.Primary),
+			);
+
+
+client.on("guildMemberAdd", function(member){
+  console.log(`${member.user.tag}(${member.user.id}), ${member.guild.name}(${member.guild.id}) sunucusuna katıldı!`);
+  member.guild.channels.cache.get("1073413133110091827").send(`Hoşgeldin, ${member}!`);
+  let rol = "1073354697211117598";
+  member.roles.add(rol);
+  console.log(`${member.user.tag}(${member.user.id}) kullanıcısına, ${member.guild.name}(${member.guild.id}) sunucusunda ${rol} rolü verildi!`);
+
+  const welcomeEmbed = new EmbedBuilder()
+			.setColor('#44ffff')
+			.setAuthor({ name: `${member.user.tag} adlı kullanıcıyı kaydetmek için bir rol seçin!`})
+      .setAuthor
+			.setTimestamp();
+  member.guild.channels.cache.get("1073413133110091827").send({embeds: [welcomeEmbed]});
+  
+      
   
 });
 
 
 client.on('interactionCreate', async interaction => {
+  
   console.log(`${interaction.commandName} slash komutu kullanılıyor...`);
   if (!interaction.isChatInputCommand()) return;
 
@@ -185,8 +227,9 @@ client.on('interactionCreate', async interaction => {
         interaction.reply("Veri bulunamadı. Lütfen bilgilerinizi kontrol edip tekrar deneyin.");
       }
       else interaction.reply(`**${data}** (${username}#${usertag})`);
-
+      
     });
+    
   }
   
   //avatar: Profil fotoğrafını büyük ve net bir şekilde gör!
@@ -197,20 +240,72 @@ client.on('interactionCreate', async interaction => {
       const avatarEmbed = new EmbedBuilder()
 			.setColor('#44ffff')
 			.setAuthor({ name: `${interaction.user.username}#${interaction.user.discriminator} Profil Fotoğrafı:`})
-			.setImage(interaction.user.avatarURL({ format: 'gif', dynamic: true, size: 1024 }))
+			.setImage(interaction.user.avatarURL({ format: 'gif', dynamic: true, size: 4096 }))
+			.setTimestamp()
+			.setFooter({ text: `${interaction.user.username}#${interaction.user.discriminator}`});
+      
+      interaction.reply({ embeds: [avatarEmbed] });
+    }
+    else
+    {
+      
+      const avatarEmbed = new EmbedBuilder()
+			.setColor('#44ffff')
+			.setAuthor({ name: `${interaction.options.getUser('kullanıcı').username}#${interaction.options.getUser('kullanıcı').discriminator} Profil Fotoğrafı:`})
+			.setImage(interaction.options.getUser('kullanıcı').displayAvatarURL({dynamic:true, size: 4096}))
+			.setTimestamp()
+			.setFooter({ text: `${interaction.options.getUser('kullanıcı').username}#${interaction.options.getUser('kullanıcı').discriminator}` });
+      interaction.reply({ embeds: [avatarEmbed] });
+        
+      
+      
+    }
+    
+    
+  }
+  
+
+
+  if(interaction.commandName === 'avatar-sw'){
+    
+    if(!interaction.options.getUser('kullanıcı'))
+    {
+      const avatarEmbed = new EmbedBuilder()
+			.setColor('#44ffff')
+			.setAuthor({ name: `${interaction.user.username}#${interaction.user.discriminator} Profil Fotoğrafı:`})
+			.setImage(interaction.user.displayAvatarURL({ format: 'gif', dynamic: true, size: 4096 }))
 			.setTimestamp()
 			.setFooter({ text: `${interaction.user.username}#${interaction.user.discriminator}`});
       interaction.reply({ embeds: [avatarEmbed] });
     }
     else
     {
-      const avatarEmbed = new EmbedBuilder()
-			.setColor('#44ffff')
-			.setAuthor({ name: `${interaction.options.getUser('kullanıcı').username}#${interaction.options.getUser('kullanıcı').discriminator} Profil Fotoğrafı:`})
-			.setImage(interaction.options.getUser('kullanıcı').avatarURL({ format: 'gif', dynamic: true, size: 1024 }))
-			.setTimestamp()
-			.setFooter({ text: `${interaction.options.getUser('kullanıcı').username}#${interaction.options.getUser('kullanıcı').discriminator}` });
-      interaction.reply({ embeds: [avatarEmbed] });
+      let res=await fetch.get(`https://discord.com/api/guilds/${interaction.guild.id}/members/${interaction.options.getUser('kullanıcı').id}`, {
+        headers:{
+          Authorization: `Bot MTA3MzI1NzU3ODA0NzQ5MjIxOA.G7JzyS.aOIc4qMwLIyFXA6eJDCovubsW_R3GQrJY0mNpw`
+        }
+      });
+      if(res.data.avatar !== undefined && res.data.avatar !== null){
+        let url = `https://cdn.discordapp.com/guilds/${interaction.guild.id}/users/${interaction.options.getUser('kullanıcı').id}/avatars/${res.data.avatar}.webp?size=4096`;
+        const avatarEmbed = new EmbedBuilder()
+			  .setColor('#44ffff')
+			  .setAuthor({ name: `${interaction.options.getUser('kullanıcı').username}#${interaction.options.getUser('kullanıcı').discriminator} Profil Fotoğrafı:`})
+			  .setImage(url)
+			  .setTimestamp()
+			  .setFooter({ text: `${interaction.options.getUser('kullanıcı').username}#${interaction.options.getUser('kullanıcı').discriminator}` });
+        interaction.reply({ embeds: [avatarEmbed] });
+        
+      }
+      else
+      {
+        const avatarEmbed = new EmbedBuilder()
+			  .setColor('#44ffff')
+			  .setAuthor({ name: `${interaction.options.getUser('kullanıcı').username}#${interaction.options.getUser('kullanıcı').discriminator} Profil Fotoğrafı:`})
+			  .setImage(interaction.options.getUser('kullanıcı').displayAvatarURL({dynamic:true, size: 4096}))
+			  .setTimestamp()
+			  .setFooter({ text: `${interaction.options.getUser('kullanıcı').username}#${interaction.options.getUser('kullanıcı').discriminator}` });
+        interaction.reply({ embeds: [avatarEmbed] });
+      }
     }
     
     
