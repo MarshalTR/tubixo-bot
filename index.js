@@ -282,7 +282,7 @@ client.on('interactionCreate', async interaction => {
     {
       let res=await fetch.get(`https://discord.com/api/guilds/${interaction.guild.id}/members/${interaction.options.getUser('kullanıcı').id}`, {
         headers:{
-          Authorization: `Bot MTA3MzI1NzU3ODA0NzQ5MjIxOA.G7JzyS.aOIc4qMwLIyFXA6eJDCovubsW_R3GQrJY0mNpw`
+          Authorization: `Bot ${process.env.TOKEN}`
         }
       });
       if(res.data.avatar !== undefined && res.data.avatar !== null){
